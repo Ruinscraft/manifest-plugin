@@ -9,6 +9,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.Team;
 
 import java.io.IOException;
 import java.net.URL;
@@ -20,6 +22,8 @@ public class ManifestPlugin extends JavaPlugin implements Listener {
 
     private Map<String, String> serverModManifest;
     private Map<Player, Map<String, String>> playerMods;
+    private Scoreboard scoreboard;
+    private Team noModsTeam;
 
     @Override
     public void onEnable() {
@@ -33,6 +37,10 @@ public class ManifestPlugin extends JavaPlugin implements Listener {
             getLogger().info(mod + " " + serverModManifest.get(mod));
         }
         getLogger().info("We will alert users if they do not have these mods installed and the hashes don't match");
+
+        scoreboard = getServer().getScoreboardManager().getMainScoreboard();
+        noModsTeam = scoreboard.registerNewTeam("NOMODS");
+        noModsTeam.setPrefix("NO-MODS ");
 
         getServer().getMessenger().registerIncomingPluginChannel(this, "manifest:mods_manifest", (s, player, bytes) -> {
             ByteArrayDataInput in = ByteStreams.newDataInput(bytes);
@@ -51,6 +59,7 @@ public class ManifestPlugin extends JavaPlugin implements Listener {
     public void onDisable() {
         getServer().getMessenger().unregisterIncomingPluginChannel(this);
         playerMods.clear();
+        noModsTeam.unregister();
     }
 
     @EventHandler
@@ -60,8 +69,9 @@ public class ManifestPlugin extends JavaPlugin implements Listener {
         getServer().getScheduler().runTaskLater(this, () -> {
             if (player.isOnline()) {
                 if (!hasMods(player)) {
-                    player.sendMessage(ChatColor.LIGHT_PURPLE + "You are missing mods which allow you to see the theater screens and more.");
+                    player.sendMessage(ChatColor.LIGHT_PURPLE + "You are missing mods or have outdated mods which allow you to see the theater screens and more.");
                     player.sendMessage(ChatColor.LIGHT_PURPLE + "Learn how to install our mods here: https://ruinscraft.com/servers/steve-cinema/how-to-join/");
+                    noModsTeam.addEntry(player.getName());
                 }
             }
         }, 60L);
