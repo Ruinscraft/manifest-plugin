@@ -60,7 +60,8 @@ public class ManifestPlugin extends JavaPlugin implements Listener {
         getServer().getScheduler().runTaskLater(this, () -> {
             if (player.isOnline()) {
                 if (!hasMods(player)) {
-                    player.sendMessage(ChatColor.LIGHT_PURPLE + "You do not have the lastest mods");
+                    player.sendMessage(ChatColor.LIGHT_PURPLE + "You are missing mods which allow you to see the theater screens and more.");
+                    player.sendMessage(ChatColor.LIGHT_PURPLE + "Learn how to install our mods here: https://ruinscraft.com/servers/steve-cinema/how-to-join/");
                 }
             }
         }, 60L);
