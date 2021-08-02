@@ -80,6 +80,7 @@ public class ManifestPlugin extends JavaPlugin implements Listener {
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         playerMods.remove(event.getPlayer());
+        noModsTeam.removeEntry(event.getPlayer().getName());
     }
 
     private void updateServerModManifest() {
